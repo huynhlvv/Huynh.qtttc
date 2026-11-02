@@ -62,6 +62,32 @@
             background: #dc2626;
         }
 
+        .spin-btn {
+            background: #10b981;
+            color: white;
+            border: 2px solid #34d399;
+            border-radius: 50px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            text-transform: uppercase;
+        }
+
+        .spin-btn:active {
+            transform: scale(0.95);
+            background: #059669;
+        }
+
+        .spin-btn:disabled {
+            background: #6b7280;
+            border-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .container {
             width: 100%;
             max-width: 600px;
@@ -314,25 +340,26 @@
 </head>
 <body>
 
-    <h1 class="title">Bốc Thăm Ghép Cặp</h1>
-    <p id="statusText" class="subtitle">Vui lòng chọn một đội để tìm đối thủ!</p>
+    <h1 class="title">Bốc Thăm Chia Bảng</h1>
+    <p id="statusText" class="subtitle">Nhấn "Quay Chia Bảng" để phân định ngẫu nhiên!</p>
     
-    <div style="display: flex; margin-bottom: 15px; width: 100%; justify-content: center;">
-        <button onclick="resetWheel()" class="reset-btn" style="margin: 0; width: 180px; padding: 10px 0;">
-            Làm Mới Vòng Quay
+    <div style="display: flex; margin-bottom: 15px; width: 100%; justify-content: center; gap: 10px;">
+        <button onclick="resetWheel()" class="reset-btn" style="margin: 0; padding: 10px 15px;">
+            🔄 Làm Mới
         </button>
     </div>
 
     <!-- Danh sách các đội -->
     <div class="container">
         <div class="card" style="width: 100%;">
-            <div class="team-list" id="teamButtonsAll" style="flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px;"></div>
+            <div class="card-title">DANH SÁCH 6 ĐỘI THAM GIA</div>
+            <div class="team-list" id="teamButtonsAll" style="flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px;"></div>
         </div>
     </div>
 
     <!-- Khu vực Vòng Quay -->
     <div class="wheel-section" id="wheelSection">
-        <div class="wheel-container">
+        <div class="wheel-container" onclick="startSpinAll()" style="cursor: pointer;" title="Nhấn vào vòng quay để chia bảng!">
             <div class="pointer" id="wheelPointer"></div>
             <canvas id="wheelCanvas"></canvas>
             <div class="center-dot" id="wheelCenter"></div>
@@ -356,7 +383,7 @@
     <!-- Modal Kết Quả -->
     <div id="resultModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2 class="modal-title">Đội được chọn</h2>
+            <h2 class="modal-title" id="modalTitle">Kết quả phân bảng</h2>
             <p id="matchContextText" class="modal-subtitle"></p>
             <div id="winnerText" class="modal-winner"></div>
             <button onclick="confirmSelection()" class="modal-btn">Tiếp tục</button>
@@ -376,58 +403,18 @@
             return false;
         };
 
-        var groupMapping = {
-            "Lê Văn Việt": "A", "Tân Phú": "A", "Đinh Tiên Hoàng": "A",
-            "Tăng Nhơn Phú": "B", "Trương Văn Thành": "B", "Phong Phú": "B"
-        };
-        
-        var groups = {
-            "A": ["Lê Văn Việt", "Tân Phú", "Đinh Tiên Hoàng"],
-            "B": ["Tăng Nhơn Phú", "Trương Văn Thành", "Phong Phú"]
-        };
-        
-        var allTeams = groups["A"].concat(groups["B"]);
-        var shuffledAllTeams = [];
+        var allTeams = ["Lê Văn Việt", "Tân Phú", "Đinh Tiên Hoàng", "Tăng Nhơn Phú", "Trương Văn Thành", "Phong Phú"];
+        var groups = { "A": [], "B": [] };
 
-        function shuffleArray(arr) {
-            var shuffled = arr.slice();
-            for (var i = shuffled.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = shuffled[i];
-                shuffled[i] = shuffled[j];
-                shuffled[j] = temp;
-            }
-            return shuffled;
-        }
-        
-        var groupCycles = { "A": {}, "B": {} };
-        function initCycles() {
-            function generate(arr) {
-                var shuffled = arr.slice();
-                for (var i = shuffled.length - 1; i > 0; i--) {
-                    var j = Math.floor(Math.random() * (i + 1));
-                    var temp = shuffled[i];
-                    shuffled[i] = shuffled[j];
-                    shuffled[j] = temp;
-                }
-                var res = {};
-                res[shuffled[0]] = shuffled[1];
-                res[shuffled[1]] = shuffled[2];
-                res[shuffled[2]] = shuffled[0];
-                return res;
-            }
-            groupCycles["A"] = generate(groups["A"]);
-            groupCycles["B"] = generate(groups["B"]);
-            shuffledAllTeams = shuffleArray(allTeams);
-        }
-        initCycles();
+        var wheelOptions = [];
+        var sliceColors = [];
 
-        var matches = { "A": [], "B": [] };
-        var spunTeams = []; 
-        var currentSpinner = null;
-        var selectedWinner = null;
-        var wheelOptions = allTeams;
-        var sliceColors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
+        function updateWheelOptions() {
+            // Đưa tên 6 đội lên trực tiếp vòng quay
+            wheelOptions = allTeams.slice();
+            sliceColors = ["#ef4444", "#3b82f6", "#f59e0b", "#10b981", "#8b5cf6", "#ec4899"];
+        }
+        updateWheelOptions();
         
         var canvas = document.getElementById('wheelCanvas');
         var ctx = canvas ? canvas.getContext('2d') : null;
@@ -467,6 +454,8 @@
                 var numSlices = wheelOptions.length;
 
                 ctx.clearRect(0, 0, size, size);
+                if (numSlices === 0) return;
+
                 var sliceAngle = (2 * Math.PI) / numSlices;
 
                 for (var i = 0; i < numSlices; i++) {
@@ -490,13 +479,13 @@
                     
                     ctx.textAlign = "right";
                     ctx.fillStyle = "#ffffff";
-                    ctx.font = "12px Arial";
+                    ctx.font = "bold 13px Arial";
                     ctx.shadowColor = "rgba(0,0,0,0.5)";
                     ctx.shadowBlur = 3;
                     ctx.shadowOffsetX = 1;
                     ctx.shadowOffsetY = 1;
 
-                    ctx.fillText(wheelOptions[i], radius - 15, 4);
+                    ctx.fillText(wheelOptions[i], radius - 15, 5);
                     ctx.restore();
                 }
             } catch (error) {}
@@ -517,76 +506,65 @@
                 animationFrameId = requestAnimationFrame(animate);
             } else {
                 isSpinning = false;
-                determineWinner();
+                determineAllWinner();
             }
         }
 
-        window.spinNext = function() {
-            if (isSpinning) return;
-            // Tìm các đội chưa được bốc thăm
-            var unspun = allTeams.filter(function(t) { return spunTeams.indexOf(t) === -1; });
-            if (unspun.length === 0) return;
-            // Chọn ngẫu nhiên 1 đội để bắt đầu quay
-            var randomTeam = unspun[Math.floor(Math.random() * unspun.length)];
-            window.startSpinForTeam(randomTeam);
-        };
-
-        window.startSpinForTeam = function(team) {
-            if (isSpinning) return;
-            currentSpinner = team;
-            selectedWinner = groupCycles[groupMapping[team]][team];
-            
-            var winnerIndex = wheelOptions.indexOf(selectedWinner);
-            var numSlices = wheelOptions.length;
-            var sliceAngle = (2 * Math.PI) / numSlices;
-            
-            var targetMod = (3 * Math.PI / 2) - (winnerIndex * sliceAngle + sliceAngle / 2);
-            var normalizedTargetMod = (targetMod + 2 * Math.PI) % (2 * Math.PI);
+        window.startSpinAll = function() {
+            if (isSpinning || groups["A"].length > 0) return;
             
             startAngle = currentAngle;
-            var tempTarget = startAngle + (2 * Math.PI * 6);
-            var currentMod = tempTarget % (2 * Math.PI);
-            var diff = normalizedTargetMod - currentMod;
-            if (diff < 0) diff += 2 * Math.PI;
+            // Quay ngẫu nhiên thêm ~10 vòng
+            targetAngle = startAngle + (2 * Math.PI * 10) + (Math.random() * Math.PI * 2);
             
-            targetAngle = tempTarget + diff;
-            document.getElementById('statusText').innerHTML = "Đang bốc thăm đối thủ cho <b style='color:#fde047'>" + team + "</b>...";
+            document.getElementById('statusText').innerHTML = "<b style='color:#fde047'>Hệ thống đang xáo trộn và chia bảng...</b>";
+            var spinBtn = document.getElementById('spinBtn');
+            if (spinBtn) spinBtn.disabled = true;
             
             isSpinning = true;
             startTime = null;
-            updateUI();
             animationFrameId = requestAnimationFrame(animate);
         }
 
-        function determineWinner() {
-            var group = groupMapping[currentSpinner];
-            matches[group].push([currentSpinner, selectedWinner]);
-            spunTeams.push(currentSpinner);
+        // Hàm xáo trộn mảng ngẫu nhiên (Fisher-Yates)
+        function shuffleArray(array) {
+            var arr = array.slice();
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+            return arr;
+        }
 
-            setTimeout(function() {
-                document.getElementById('matchContextText').innerText = "Trận đấu thuộc BẢNG " + group;
-                document.getElementById('winnerText').innerHTML = "<span class='modal-team1'>" + currentSpinner + "</span> <span class='modal-vs'>gặp</span> <span>" + selectedWinner + "</span>";
-                document.getElementById('resultModal').classList.remove('hidden');
-            }, 300);
+        function determineAllWinner() {
+            // Cố định danh sách các đội cho từng bảng theo yêu cầu
+            var fixedGroupA = ["Lê Văn Việt", "Trương Văn Thành", "Phong Phú"];
+            var fixedGroupB = ["Tăng Nhơn Phú", "Đinh Tiên Hoàng", "Tân Phú"];
+            
+            // Xáo trộn ngẫu nhiên thứ tự hiển thị TRONG CÙNG 1 BẢNG để trông tự nhiên nhất
+            groups["A"] = shuffleArray(fixedGroupA);
+            groups["B"] = shuffleArray(fixedGroupB);
+            
+            // Không dùng bảng thông báo nữa, cập nhật kết quả thẳng xuống 2 bảng luôn
+            updateUI();
         }
 
         window.confirmSelection = function() {
             document.getElementById('resultModal').classList.add('hidden');
-            currentSpinner = null;
-            selectedWinner = null;
             updateUI();
         }
         
         window.resetWheel = function() {
             if (isSpinning) return;
-            matches = { "A": [], "B": [] };
-            spunTeams = [];
-            initCycles();
+            groups = { "A": [], "B": [] };
             currentAngle = 0;
-            currentSpinner = null;
-            selectedWinner = null;
             
-            document.getElementById('statusText').innerText = "Vui lòng chọn một đội để tìm đối thủ!";
+            document.getElementById('statusText').innerText = "Nhấn \"Quay Chia Bảng\" để phân định ngẫu nhiên!";
+            var spinBtn = document.getElementById('spinBtn');
+            if (spinBtn) spinBtn.disabled = false;
+            
             document.getElementById('wheelPointer').style.display = 'block';
             document.getElementById('wheelCenter').style.display = 'block';
             document.querySelector('.wheel-container').style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3), inset 0 0 0 6px #facc15';
@@ -599,57 +577,52 @@
         function updateUI() {
             drawWheel(); 
             
+            // Render khung danh sách 6 đội ở trên
             var containerAll = document.getElementById('teamButtonsAll');
             if (containerAll) {
                 var htmlAll = '';
-                for (var i = 0; i < shuffledAllTeams.length; i++) {
-                    var team = shuffledAllTeams[i];
-                    var isSpun = spunTeams.indexOf(team) !== -1;
-                    if (isSpun) {
-                        htmlAll += '<button class="team-badge spun" disabled style="width: calc(50% - 4px); margin-bottom: 0;">' + team + '</button>';
-                    } else {
-                        htmlAll += '<button class="team-badge" onclick="startSpinForTeam(\'' + team + '\')" style="width: calc(50% - 4px); margin-bottom: 0;">' + team + '</button>';
-                    }
+                for (var i = 0; i < allTeams.length; i++) {
+                    // Nếu đã chia bảng xong thì làm mờ đi
+                    htmlAll += '<div class="team-badge" style="width: calc(33.33% - 4px); margin-bottom: 0; pointer-events: none; opacity: ' + (groups["A"].length > 0 ? '0.5' : '1') + ';">' + (i + 1) + '</div>';
                 }
                 containerAll.innerHTML = htmlAll;
             }
             
-            function renderMatches(groupMatches, containerId) {
+            // Render kết quả bảng A & B
+            function renderGroup(groupTeams, containerId) {
                 var container = document.getElementById(containerId);
                 if (!container) return;
-                if (groupMatches.length === 0) {
-                    container.innerHTML = '<div class="empty-msg">Chưa có trận nào</div>';
+                if (groupTeams.length === 0) {
+                    container.innerHTML = '<div class="empty-msg">Chưa có đội nào</div>';
                 } else {
                     var html = '';
-                    for (var i = 0; i < groupMatches.length; i++) {
-                        var m = groupMatches[i];
-                        html += '<div class="match-card">';
-                        html += '<span class="match-label">Trận ' + (i + 1) + '</span>';
-                        html += '<span class="match-team">' + m[0] + '</span>';
-                        html += '<span class="match-vs">VS</span>';
-                        html += '<span class="match-team">' + m[1] + '</span>';
+                    // Bảng A dùng chữ A, Bảng B dùng chữ B
+                    var letterPrefix = (containerId === 'scheduleA') ? 'A' : 'B';
+                    
+                    for (var i = 0; i < groupTeams.length; i++) {
+                        var prefix = letterPrefix + (i + 1);
+                        
+                        html += '<div class="match-card" style="border-left-color: ' + (containerId === 'scheduleA' ? '#ef4444' : '#3b82f6') + '; padding: 8px 4px;">';
+                        html += '<span class="match-team" style="font-size: 0.95rem;">' + prefix + ' - ' + groupTeams[i] + '</span>';
                         html += '</div>';
                     }
                     container.innerHTML = html;
                 }
             }
 
-            renderMatches(matches["A"], 'scheduleA');
-            renderMatches(matches["B"], 'scheduleB');
+            renderGroup(groups["A"], 'scheduleA');
+            renderGroup(groups["B"], 'scheduleB');
 
-            var isCompleteA = matches["A"].length === 3;
-            var isCompleteB = matches["B"].length === 3;
             var statusText = document.getElementById('statusText');
-
-            if (isCompleteA && isCompleteB) {
-                statusText.innerHTML = "🎉 <b style='color:#fde047; font-size: 1.1rem'>HOÀN TẤT BỐC THĂM</b> 🎉";
+            if (groups["A"].length === 3) {
+                statusText.innerHTML = "🎉 <b style='color:#fde047; font-size: 1.1rem'>HOÀN TẤT CHIA BẢNG</b> 🎉";
                 document.getElementById('wheelPointer').style.display = 'none';
                 document.getElementById('wheelCenter').style.display = 'none';
                 document.querySelector('.wheel-container').style.boxShadow = 'none';
                 document.querySelector('.wheel-container').style.background = 'transparent';
                 document.getElementById('wheelCanvas').style.opacity = '0.3';
             } else if (!isSpinning) {
-                statusText.innerText = "Vui lòng chọn một đội để tìm đối thủ!";
+                statusText.innerText = "Nhấn \"Quay Chia Bảng\" để phân định ngẫu nhiên!";
             }
         }
 
