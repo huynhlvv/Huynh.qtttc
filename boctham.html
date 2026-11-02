@@ -134,6 +134,34 @@
             border-color: #94a3b8;
         }
 
+        .team-badge {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            border: 1px solid #60a5fa;
+            color: white;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 6px;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .team-badge:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .team-badge.spun {
+            opacity: 0.4;
+            text-decoration: line-through;
+            background: rgba(0,0,0,0.1);
+            border-color: rgba(255,255,255,0.1);
+            cursor: not-allowed;
+        }
+
         .empty-msg {
             text-align: center;
             color: #cbd5e1;
@@ -289,21 +317,16 @@
     <h1 class="title">Bốc Thăm Ghép Cặp</h1>
     <p id="statusText" class="subtitle">Vui lòng chọn một đội để tìm đối thủ!</p>
     
-    <button onclick="resetWheel()" class="reset-btn">
-        Làm Mới Vòng Quay
-    </button>
+    <div style="display: flex; margin-bottom: 15px; width: 100%; justify-content: center;">
+        <button onclick="resetWheel()" class="reset-btn" style="margin: 0; width: 180px; padding: 10px 0;">
+            Làm Mới Vòng Quay
+        </button>
+    </div>
 
-    <!-- Khu vực Chọn Đội (Chia 2 cột) -->
+    <!-- Danh sách các đội -->
     <div class="container">
-        <!-- Bảng A -->
-        <div class="card">
-            <h3 class="card-title">Các Đội Bảng A</h3>
-            <div class="team-list" id="teamButtonsA"></div>
-        </div>
-        <!-- Bảng B -->
-        <div class="card">
-            <h3 class="card-title">Các Đội Bảng B</h3>
-            <div class="team-list" id="teamButtonsB"></div>
+        <div class="card" style="width: 100%;">
+            <div class="team-list" id="teamButtonsAll" style="flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px;"></div>
         </div>
     </div>
 
@@ -364,6 +387,18 @@
         };
         
         var allTeams = groups["A"].concat(groups["B"]);
+        var shuffledAllTeams = [];
+
+        function shuffleArray(arr) {
+            var shuffled = arr.slice();
+            for (var i = shuffled.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = shuffled[i];
+                shuffled[i] = shuffled[j];
+                shuffled[j] = temp;
+            }
+            return shuffled;
+        }
         
         var groupCycles = { "A": {}, "B": {} };
         function initCycles() {
@@ -383,6 +418,7 @@
             }
             groupCycles["A"] = generate(groups["A"]);
             groupCycles["B"] = generate(groups["B"]);
+            shuffledAllTeams = shuffleArray(allTeams);
         }
         initCycles();
 
@@ -485,6 +521,16 @@
             }
         }
 
+        window.spinNext = function() {
+            if (isSpinning) return;
+            // Tìm các đội chưa được bốc thăm
+            var unspun = allTeams.filter(function(t) { return spunTeams.indexOf(t) === -1; });
+            if (unspun.length === 0) return;
+            // Chọn ngẫu nhiên 1 đội để bắt đầu quay
+            var randomTeam = unspun[Math.floor(Math.random() * unspun.length)];
+            window.startSpinForTeam(randomTeam);
+        };
+
         window.startSpinForTeam = function(team) {
             if (isSpinning) return;
             currentSpinner = team;
@@ -552,22 +598,21 @@
 
         function updateUI() {
             drawWheel(); 
-            function renderButtons(groupTeams, containerId) {
-                var container = document.getElementById(containerId);
-                if (!container) return;
-                var html = '';
-                for (var i = 0; i < groupTeams.length; i++) {
-                    var team = groupTeams[i];
-                    if (spunTeams.indexOf(team) !== -1) continue;
-                    var disabled = isSpinning ? 'disabled' : '';
-                    // Nút bấm đã được thiết kế lại chỉ còn tên, không còn icon "Quay"
-                    html += '<button class="team-btn" onclick="startSpinForTeam(\'' + team + '\')" ' + disabled + '>' + team + '</button>';
-                }
-                container.innerHTML = html === '' ? '<div class="empty-msg">Đã quay xong</div>' : html;
-            }
             
-            renderButtons(groups["A"], 'teamButtonsA');
-            renderButtons(groups["B"], 'teamButtonsB');
+            var containerAll = document.getElementById('teamButtonsAll');
+            if (containerAll) {
+                var htmlAll = '';
+                for (var i = 0; i < shuffledAllTeams.length; i++) {
+                    var team = shuffledAllTeams[i];
+                    var isSpun = spunTeams.indexOf(team) !== -1;
+                    if (isSpun) {
+                        htmlAll += '<button class="team-badge spun" disabled style="width: calc(50% - 4px); margin-bottom: 0;">' + team + '</button>';
+                    } else {
+                        htmlAll += '<button class="team-badge" onclick="startSpinForTeam(\'' + team + '\')" style="width: calc(50% - 4px); margin-bottom: 0;">' + team + '</button>';
+                    }
+                }
+                containerAll.innerHTML = htmlAll;
+            }
             
             function renderMatches(groupMatches, containerId) {
                 var container = document.getElementById(containerId);
