@@ -7,7 +7,613 @@
     <style>
         * {
             box-sizing: border-box;
-…        });
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 10px 8px 20px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 1.4rem;
+            color: #fde047;
+            text-align: center;
+            text-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 4px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #dbeafe;
+            text-align: center;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .reset-btn {
+            background: #ef4444;
+            color: white;
+            border: 2px solid #fca5a5;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin: 0 auto 15px auto;
+            transition: transform 0.1s;
+        }
+
+        .reset-btn:active {
+            transform: scale(0.95);
+            background: #dc2626;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 48.5%; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            color: #fde047;
+            text-align: center;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .team-list {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .team-btn {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            border: 1px solid #60a5fa;
+            color: white;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+            margin-bottom: 6px;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+        }
+        
+        .team-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .team-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .team-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #64748b;
+            border-color: #94a3b8;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 0.75rem;
+            font-style: italic;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 2px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin: auto 0;
+        }
+
+        /* Match Results */
+        .match-card {
+            background: rgba(255,255,255,0.15);
+            padding: 6px 2px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            text-align: center;
+            border-left: 3px solid #facc15;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .match-label { color: #fde047; font-weight: bold; font-size: 0.75rem; margin-bottom: 2px;}
+        .match-team { color: #ffffff; font-weight: bold; font-size: 0.8rem; }
+        .match-vs { 
+            background: rgba(127,29,29,0.7); 
+            color: #fca5a5; 
+            font-size: 0.65rem; 
+            font-weight: 900; 
+            padding: 2px 4px; 
+            border-radius: 4px; 
+            margin: 2px 0;
+        }
+
+        /* Wheel */
+        .wheel-section {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 75vw;
+            max-width: 260px;
+            height: 75vw;
+            max-height: 260px;
+            border-radius: 50%;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), inset 0 0 0 6px #facc15;
+            background-color: #fff;
+            transition: opacity 0.5s;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 24px solid #ef4444;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+            z-index: 10;
+        }
+
+        .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background-color: #facc15;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .hidden { display: none !important; }
+
+        .modal-content {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 260px;
+            width: 100%;
+            border: 3px solid #facc15;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+        }
+
+        .modal-title { color: #6b7280; font-size: 1.1rem; font-weight: bold; margin-bottom: 4px; }
+        .modal-subtitle { color: #9ca3af; font-size: 0.8rem; margin-bottom: 12px; }
+        .modal-winner {
+            background: linear-gradient(45deg, #ef4444, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.3rem;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 15px;
+        }
+        
+        .modal-vs { font-size: 0.85rem; color: #9ca3af; display: block; margin: 4px 0; -webkit-text-fill-color: initial; }
+        .modal-team1 { font-size: 1.1rem; -webkit-text-fill-color: initial; color: #374151; display: block; }
+
+        .modal-btn {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="title">Bốc Thăm Ghép Cặp</h1>
+    <p id="statusText" class="subtitle">Vui lòng chọn một đội để tìm đối thủ!</p>
+    
+    <button onclick="resetWheel()" class="reset-btn">
+        Làm Mới Vòng Quay
+    </button>
+
+    <!-- Khu vực Chọn Đội (Chia 2 cột) -->
+    <div class="container">
+        <!-- Bảng A -->
+        <div class="card">
+            <h3 class="card-title">Các Đội Bảng A</h3>
+            <div class="team-list" id="teamButtonsA"></div>
+        </div>
+        <!-- Bảng B -->
+        <div class="card">
+            <h3 class="card-title">Các Đội Bảng B</h3>
+            <div class="team-list" id="teamButtonsB"></div>
+        </div>
+    </div>
+
+    <!-- Khu vực Vòng Quay -->
+    <div class="wheel-section" id="wheelSection">
+        <div class="wheel-container">
+            <div class="pointer" id="wheelPointer"></div>
+            <canvas id="wheelCanvas"></canvas>
+            <div class="center-dot" id="wheelCenter"></div>
+        </div>
+    </div>
+
+    <!-- Khu vực Hiển thị Kết quả (Chia 2 cột) -->
+    <div class="container">
+        <!-- Kết quả Bảng A -->
+        <div class="card">
+            <h2 class="card-title">Kết Quả Bảng A</h2>
+            <div class="team-list" id="scheduleA"></div>
+        </div>
+        <!-- Kết quả Bảng B -->
+        <div class="card">
+            <h2 class="card-title">Kết Quả Bảng B</h2>
+            <div class="team-list" id="scheduleB"></div>
+        </div>
+    </div>
+
+    <!-- Modal Kết Quả -->
+    <div id="resultModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Đội được chọn</h2>
+            <p id="matchContextText" class="modal-subtitle"></p>
+            <div id="winnerText" class="modal-winner"></div>
+            <button onclick="confirmSelection()" class="modal-btn">Tiếp tục</button>
+        </div>
+    </div>
+
+    <script>
+        // Bắt lỗi toàn cục nhưng bỏ qua thông báo phiền phức của Zalo
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            if (msg.indexOf('zaloJSV2') !== -1 || msg.indexOf('Zalo') !== -1) {
+                return false; 
+            }
+            var st = document.getElementById('statusText');
+            if (st) {
+                st.innerHTML = '<span style="color:#fca5a5; font-size: 0.85rem;">Lỗi: ' + msg + '</span>';
+            }
+            return false;
+        };
+
+        var groupMapping = {
+            "Lê Văn Việt": "A", "Tân Phú": "A", "Đinh Tiên Hoàng": "A",
+            "Tăng Nhơn Phú": "B", "Trương Văn Thành": "B", "Phong Phú": "B"
+        };
+        
+        var groups = {
+            "A": ["Lê Văn Việt", "Tân Phú", "Đinh Tiên Hoàng"],
+            "B": ["Tăng Nhơn Phú", "Trương Văn Thành", "Phong Phú"]
+        };
+        
+        var allTeams = groups["A"].concat(groups["B"]);
+        
+        var groupCycles = { "A": {}, "B": {} };
+        function initCycles() {
+            function generate(arr) {
+                var shuffled = arr.slice();
+                for (var i = shuffled.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = shuffled[i];
+                    shuffled[i] = shuffled[j];
+                    shuffled[j] = temp;
+                }
+                var res = {};
+                res[shuffled[0]] = shuffled[1];
+                res[shuffled[1]] = shuffled[2];
+                res[shuffled[2]] = shuffled[0];
+                return res;
+            }
+            groupCycles["A"] = generate(groups["A"]);
+            groupCycles["B"] = generate(groups["B"]);
+        }
+        initCycles();
+
+        var matches = { "A": [], "B": [] };
+        var spunTeams = []; 
+        var currentSpinner = null;
+        var selectedWinner = null;
+        var wheelOptions = allTeams;
+        var sliceColors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
+        
+        var canvas = document.getElementById('wheelCanvas');
+        var ctx = canvas ? canvas.getContext('2d') : null;
+        
+        function resizeCanvas() {
+            if (!canvas) return;
+            var size = canvas.parentElement.clientWidth || 260;
+            if (size > 0) {
+                canvas.width = size;
+                canvas.height = size;
+                drawWheel();
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        var currentAngle = 0; 
+        var isSpinning = false;
+        var animationFrameId;
+        var startTime = null;
+        var startAngle = 0;
+        var targetAngle = 0;
+        var SPIN_DURATION = 4000; 
+
+        function drawWheel() {
+            if (!canvas || !ctx) return;
+            try {
+                var size = canvas.parentElement.clientWidth || 260;
+                if(size === 0) return;
+                
+                if (canvas.width !== size) {
+                    canvas.width = size;
+                    canvas.height = size;
+                }
+
+                var center = size / 2;
+                var radius = Math.max(0, center - 8);
+                var numSlices = wheelOptions.length;
+
+                ctx.clearRect(0, 0, size, size);
+                var sliceAngle = (2 * Math.PI) / numSlices;
+
+                for (var i = 0; i < numSlices; i++) {
+                    var angleStart = currentAngle + i * sliceAngle;
+                    var angleEnd = angleStart + sliceAngle;
+
+                    ctx.beginPath();
+                    ctx.moveTo(center, center);
+                    ctx.arc(center, center, radius, angleStart, angleEnd);
+                    ctx.closePath();
+
+                    ctx.fillStyle = sliceColors[i % sliceColors.length];
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.translate(center, center);
+                    ctx.rotate(angleStart + sliceAngle / 2);
+                    
+                    ctx.textAlign = "right";
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "12px Arial";
+                    ctx.shadowColor = "rgba(0,0,0,0.5)";
+                    ctx.shadowBlur = 3;
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
+
+                    ctx.fillText(wheelOptions[i], radius - 15, 4);
+                    ctx.restore();
+                }
+            } catch (error) {}
+        }
+
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+        function animate(time) {
+            if (!startTime) startTime = time;
+            var elapsed = time - startTime;
+            if (elapsed > SPIN_DURATION) elapsed = SPIN_DURATION;
+            
+            var progress = elapsed / SPIN_DURATION;
+            currentAngle = startAngle + (targetAngle - startAngle) * easeOutCubic(progress);
+            drawWheel();
+            
+            if (elapsed < SPIN_DURATION) {
+                animationFrameId = requestAnimationFrame(animate);
+            } else {
+                isSpinning = false;
+                determineWinner();
+            }
+        }
+
+        window.startSpinForTeam = function(team) {
+            if (isSpinning) return;
+            currentSpinner = team;
+            selectedWinner = groupCycles[groupMapping[team]][team];
+            
+            var winnerIndex = wheelOptions.indexOf(selectedWinner);
+            var numSlices = wheelOptions.length;
+            var sliceAngle = (2 * Math.PI) / numSlices;
+            
+            var targetMod = (3 * Math.PI / 2) - (winnerIndex * sliceAngle + sliceAngle / 2);
+            var normalizedTargetMod = (targetMod + 2 * Math.PI) % (2 * Math.PI);
+            
+            startAngle = currentAngle;
+            var tempTarget = startAngle + (2 * Math.PI * 6);
+            var currentMod = tempTarget % (2 * Math.PI);
+            var diff = normalizedTargetMod - currentMod;
+            if (diff < 0) diff += 2 * Math.PI;
+            
+            targetAngle = tempTarget + diff;
+            document.getElementById('statusText').innerHTML = "Đang bốc thăm đối thủ cho <b style='color:#fde047'>" + team + "</b>...";
+            
+            isSpinning = true;
+            startTime = null;
+            updateUI();
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        function determineWinner() {
+            var group = groupMapping[currentSpinner];
+            matches[group].push([currentSpinner, selectedWinner]);
+            spunTeams.push(currentSpinner);
+
+            setTimeout(function() {
+                document.getElementById('matchContextText').innerText = "Trận đấu thuộc BẢNG " + group;
+                document.getElementById('winnerText').innerHTML = "<span class='modal-team1'>" + currentSpinner + "</span> <span class='modal-vs'>gặp</span> <span>" + selectedWinner + "</span>";
+                document.getElementById('resultModal').classList.remove('hidden');
+            }, 300);
+        }
+
+        window.confirmSelection = function() {
+            document.getElementById('resultModal').classList.add('hidden');
+            currentSpinner = null;
+            selectedWinner = null;
+            updateUI();
+        }
+        
+        window.resetWheel = function() {
+            if (isSpinning) return;
+            matches = { "A": [], "B": [] };
+            spunTeams = [];
+            initCycles();
+            currentAngle = 0;
+            currentSpinner = null;
+            selectedWinner = null;
+            
+            document.getElementById('statusText').innerText = "Vui lòng chọn một đội để tìm đối thủ!";
+            document.getElementById('wheelPointer').style.display = 'block';
+            document.getElementById('wheelCenter').style.display = 'block';
+            document.querySelector('.wheel-container').style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3), inset 0 0 0 6px #facc15';
+            document.querySelector('.wheel-container').style.background = '#fff';
+            document.getElementById('wheelCanvas').style.opacity = '1';
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            drawWheel(); 
+            function renderButtons(groupTeams, containerId) {
+                var container = document.getElementById(containerId);
+                if (!container) return;
+                var html = '';
+                for (var i = 0; i < groupTeams.length; i++) {
+                    var team = groupTeams[i];
+                    if (spunTeams.indexOf(team) !== -1) continue;
+                    var disabled = isSpinning ? 'disabled' : '';
+                    // Nút bấm đã được thiết kế lại chỉ còn tên, không còn icon "Quay"
+                    html += '<button class="team-btn" onclick="startSpinForTeam(\'' + team + '\')" ' + disabled + '>' + team + '</button>';
+                }
+                container.innerHTML = html === '' ? '<div class="empty-msg">Đã quay xong</div>' : html;
+            }
+            
+            renderButtons(groups["A"], 'teamButtonsA');
+            renderButtons(groups["B"], 'teamButtonsB');
+            
+            function renderMatches(groupMatches, containerId) {
+                var container = document.getElementById(containerId);
+                if (!container) return;
+                if (groupMatches.length === 0) {
+                    container.innerHTML = '<div class="empty-msg">Chưa có trận nào</div>';
+                } else {
+                    var html = '';
+                    for (var i = 0; i < groupMatches.length; i++) {
+                        var m = groupMatches[i];
+                        html += '<div class="match-card">';
+                        html += '<span class="match-label">Trận ' + (i + 1) + '</span>';
+                        html += '<span class="match-team">' + m[0] + '</span>';
+                        html += '<span class="match-vs">VS</span>';
+                        html += '<span class="match-team">' + m[1] + '</span>';
+                        html += '</div>';
+                    }
+                    container.innerHTML = html;
+                }
+            }
+
+            renderMatches(matches["A"], 'scheduleA');
+            renderMatches(matches["B"], 'scheduleB');
+
+            var isCompleteA = matches["A"].length === 3;
+            var isCompleteB = matches["B"].length === 3;
+            var statusText = document.getElementById('statusText');
+
+            if (isCompleteA && isCompleteB) {
+                statusText.innerHTML = "🎉 <b style='color:#fde047; font-size: 1.1rem'>HOÀN TẤT BỐC THĂM</b> 🎉";
+                document.getElementById('wheelPointer').style.display = 'none';
+                document.getElementById('wheelCenter').style.display = 'none';
+                document.querySelector('.wheel-container').style.boxShadow = 'none';
+                document.querySelector('.wheel-container').style.background = 'transparent';
+                document.getElementById('wheelCanvas').style.opacity = '0.3';
+            } else if (!isSpinning) {
+                statusText.innerText = "Vui lòng chọn một đội để tìm đối thủ!";
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('wheelCanvas');
+            if (canvas) ctx = canvas.getContext('2d');
+            resizeCanvas();
+            updateUI();
+        });
         
         window.addEventListener('load', function() {
             resizeCanvas();
