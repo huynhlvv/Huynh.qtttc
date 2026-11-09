@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Liệu Phòng Trọ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 pb-32">
+
+    <!-- Header -->
+    <div class="bg-blue-600 text-white p-4 shadow-md rounded-b-xl mb-4">
+        <h1 class="text-xl font-bold text-center">Quản Lý Phòng Trọ</h1>
+    </div>
+
+    <!-- Vùng nhập liệu -->
+    <div class="px-4 max-w-md mx-auto space-y-4">
+        
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Chọn phòng -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <label class="block text-gray-700 font-bold mb-2">Phòng</label>
+                <select id="roomSelect" class="w-full p-3 border border-gray-300 rounded-lg text-lg font-semibold bg-gray-50">
+                    <option value="P1">Phòng 1</option><option value="P2">Phòng 2</option>
+                    <option value="P3">Phòng 3</option><option value="P4">Phòng 4</option>
+                    <option value="P5">Phòng 5</option><option value="P6">Phòng 6</option>
+                    <option value="P7">Phòng 7</option><option value="P8">Phòng 8</option>
+                    <option value="P9">Phòng 9</option><option value="P10">Phòng 10</option>
+                    <option value="P11">Phòng 11</option><option value="P12">Phòng 12</option>
+                </select>
+            </div>
+
+            <!-- Chọn tháng -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <label class="block text-gray-700 font-bold mb-2">Tháng</label>
+                <select id="monthSelect" class="w-full p-3 border border-gray-300 rounded-lg text-lg font-semibold bg-gray-50">
+                    <option value="Tháng 1">Tháng 1</option><option value="Tháng 2">Tháng 2</option>
+                    <option value="Tháng 3">Tháng 3</option><option value="Tháng 4">Tháng 4</option>
+                    <option value="Tháng 5">Tháng 5</option><option value="Tháng 6">Tháng 6</option>
+                    <option value="Tháng 7">Tháng 7</option><option value="Tháng 8">Tháng 8</option>
+                    <option value="Tháng 9">Tháng 9</option><option value="Tháng 10">Tháng 10</option>
+                    <option value="Tháng 11">Tháng 11</option><option value="Tháng 12">Tháng 12</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tiền phòng -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <label class="block text-gray-700 font-bold mb-2">Tiền phòng (VNĐ)</label>
+            <input type="text" inputmode="numeric" id="tienPhong" class="input-calc w-full p-3 border border-gray-300 rounded-lg text-lg font-semibold text-blue-700" placeholder="0">
+        </div>
+
+        <!-- Điện -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-bl-lg text-sm font-bold">5,000đ/kwh</div>
+            <label class="block text-gray-700 font-bold mb-2 mt-4">Điện</label>
+            <div class="grid grid-cols-2 gap-3 mb-2">
+                <div>
+                    <label class="text-xs text-gray-500">Chỉ số cũ</label>
+                    <input type="text" inputmode="numeric" id="dienCu" class="input-calc w-full p-3 border border-gray-300 rounded-lg font-semibold" placeholder="Cũ">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500">Chỉ số mới</label>
+                    <input type="text" inputmode="numeric" id="dienMoi" class="input-calc w-full p-3 border border-gray-300 rounded-lg font-semibold" placeholder="Mới">
+                </div>
+            </div>
+            <div class="text-right text-sm text-gray-500">Thành tiền điện: <span id="tienDien" class="font-bold text-red-500 text-lg">0</span></div>
+        </div>
+
+        <!-- Nước -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-blue-100 text-blue-800 px-3 py-1 rounded-bl-lg text-sm font-bold">18,000đ/khối</div>
+            <label class="block text-gray-700 font-bold mb-2 mt-4">Nước</label>
+            <div class="grid grid-cols-2 gap-3 mb-2">
+                <div>
+                    <label class="text-xs text-gray-500">Chỉ số cũ</label>
+                    <input type="text" inputmode="numeric" id="nuocCu" class="input-calc w-full p-3 border border-gray-300 rounded-lg font-semibold" placeholder="Cũ">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500">Chỉ số mới</label>
+                    <input type="text" inputmode="numeric" id="nuocMoi" class="input-calc w-full p-3 border border-gray-300 rounded-lg font-semibold" placeholder="Mới">
+                </div>
+            </div>
+            <div class="text-right text-sm text-gray-500">Thành tiền nước: <span id="tienNuoc" class="font-bold text-red-500 text-lg">0</span></div>
+        </div>
+
+        <!-- Phụ phí -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <label class="block text-gray-700 font-bold mb-2">Tiền Wifi</label>
+                <input type="text" inputmode="numeric" id="wifi" class="input-calc w-full p-3 border border-gray-300 rounded-lg font-semibold text-blue-700" placeholder="0">
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <label class="block text-gray-700 font-bold mb-2">Tiền rác</label>
+                <input type="text" inputmode="numeric" id="rac" class="input-calc w-full p-3 border border-gray-300 rounded-lg font-semibold text-blue-700" placeholder="0">
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div class="max-w-md mx-auto flex flex-col gap-2">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600 font-bold">Tổng Thanh Toán:</span>
+                <span id="tongTien" class="text-2xl font-black text-red-600">0</span>
+            </div>
+            <button id="btnSubmit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl text-lg flex justify-center items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Chốt Sổ & Gửi Sheets
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4CxssD2nBxi1nogjBpxkScQ8y2Tvjz-7DEKWIsm6mt_ghxFoz9Jw8058n1g7aSBtZ/exec";
+        const CONSTANTS = { ELEC_PRICE: 5000, WATER_PRICE: 18000 };
+        
+        // Tự động chọn tháng hiện tại khi mở web
+        const currentMonth = new Date().getMonth() + 1;
+        document.getElementById('monthSelect').value = `Tháng ${currentMonth}`;
+
+        // Format thêm dấu phẩy khi hiển thị
+        const formatMoney = (num) => (num || 0).toLocaleString('en-US');
+        
+        // Lấy giá trị số nguyên chất để tính toán (bỏ dấu phẩy)
+        const getVal = (id) => {
+            const strVal = document.getElementById(id).value.replace(/,/g, '');
+            return parseFloat(strVal) || 0;
+        };
+
+        // Hàm tính toán tự động
+        function calculate() {
+            let dCu = getVal('dienCu'), dMoi = getVal('dienMoi');
+            let nCu = getVal('nuocCu'), nMoi = getVal('nuocMoi');
+            
+            let tienDien = Math.max(0, dMoi - dCu) * CONSTANTS.ELEC_PRICE;
+            let tienNuoc = Math.max(0, nMoi - nCu) * CONSTANTS.WATER_PRICE;
+            
+            document.getElementById('tienDien').innerText = formatMoney(tienDien) + ' đ';
+            document.getElementById('tienNuoc').innerText = formatMoney(tienNuoc) + ' đ';
+            
+            let tong = getVal('tienPhong') + tienDien + tienNuoc + getVal('wifi') + getVal('rac');
+            document.getElementById('tongTien').innerText = formatMoney(tong) + ' VNĐ';
+
+            return {
+                thang: document.getElementById('monthSelect').value,
+                room: document.getElementById('roomSelect').value,
+                tienPhong: getVal('tienPhong'),
+                dienCu: dCu, dienMoi: dMoi, tienDien: tienDien,
+                nuocCu: nCu, nuocMoi: nMoi, tienNuoc: tienNuoc,
+                wifi: getVal('wifi'), rac: getVal('rac'),
+                tongTien: tong
+            };
+        }
+
+        // Tự động định dạng thêm dấu phẩy khi người dùng gõ phím
+        document.querySelectorAll('.input-calc').forEach(input => {
+            input.addEventListener('input', function(e) {
+                // Xóa mọi ký tự không phải số
+                let val = this.value.replace(/\D/g, '');
+                
+                // Nếu có số thì định dạng lại có dấu phẩy
+                if(val !== '') {
+                    this.value = parseInt(val, 10).toLocaleString('en-US');
+                } else {
+                    this.value = '';
+                }
+                
+                // Gọi hàm tính tiền
+                calculate();
+            });
+        });
+
+        // Xử lý nút Gửi
+        document.getElementById('btnSubmit').addEventListener('click', async () => {
+            const btn = document.getElementById('btnSubmit');
+            const data = calculate();
+
+            btn.innerHTML = `⏳ Đang lưu dữ liệu...`;
+            btn.disabled = true;
+            btn.classList.replace('bg-green-600', 'bg-gray-400');
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                alert(`Đã chốt sổ thành công ${data.room} - ${data.thang} lên hệ thống!`);
+                
+                // Xóa số liệu để nhập phòng mới, giữ nguyên Tháng
+                document.querySelectorAll('.input-calc').forEach(input => input.value = '');
+                calculate(); 
+                
+            } catch (error) {
+                alert("Đã xảy ra lỗi khi gửi. Vui lòng kiểm tra lại kết nối mạng!");
+            } finally {
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Chốt Sổ & Gửi Sheets`;
+                btn.disabled = false;
+                btn.classList.replace('bg-gray-400', 'bg-green-600');
+            }
+        });
+    </script>
+</body>
+</html>
